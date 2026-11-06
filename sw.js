@@ -2,7 +2,7 @@
  * Service Worker —— 离线缓存
  * 更新内容后请把 CACHE 版本号 +1（如 v2），以便浏览器刷新缓存。
  */
-const CACHE = 'salarytimer-v1';
+const CACHE = 'salarytimer-v2';
 const ASSETS = [
   './',
   './index.html',

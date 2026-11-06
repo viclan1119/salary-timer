@@ -66,35 +66,6 @@
   .nav .nav-sub { font-size: 11px; font-weight: 500; color: #cbd5e1; letter-spacing: 1px; margin-left: 10px; }
   .content { padding-top: calc(72px + env(safe-area-inset-top)); }
 
-  .info-bar {
-    margin: 12px 16px 0;
-    padding: 10px 14px;
-    border-radius: 14px;
-    background: rgba(254,243,199,0.75);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(251,191,36,0.35);
-    color: #92400e;
-    font-size: 13px;
-    line-height: 1.5;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .info-text { flex: 1; }
-  .info-btn {
-    flex-shrink: 0;
-    border: none;
-    border-radius: 999px;
-    background: #10b981;
-    color: #fff;
-    font-size: 13px;
-    font-weight: 700;
-    padding: 6px 14px;
-    cursor: pointer;
-  }
-  .info-close { flex-shrink: 0; color: #b45309; font-size: 20px; line-height: 1; cursor: pointer; padding: 2px 4px; }
-
   .tabbar {
     position: fixed;
     bottom: 0;
@@ -261,12 +232,6 @@
   <div class="nav"><span class="nav-cn">薪动</span><span class="nav-sub">让每一秒的努力看得到</span></div>
 
   <div class="content">
-    <div class="info-bar" id="infoBar">
-      <span class="info-text">📱 添加到主屏幕，像 App 一样使用</span>
-      <button class="info-btn" id="installBtn" style="display:none" onclick="installApp()">安装</button>
-      <span class="info-close" onclick="closeInfoBar()">×</span>
-    </div>
-
     <div class="page active" id="page-index"></div>
     <div class="page" id="page-stats"></div>
     <div class="page" id="page-settings"></div>
@@ -508,23 +473,6 @@ function onModuleAmount(i,v){ config.modules[i].amount = +v||0; saveConfig(); re
 function addModule(name){ config.modules.push({ id:genId(), name, amount:0 }); saveConfig(); renderSettings(); }
 function removeModule(i){ config.modules.splice(i,1); saveConfig(); renderSettings(); }
 function onGoal(v){ config.goal = +v||0; saveConfig(); renderSettings(); }
-
-function closeInfoBar(){ document.getElementById('infoBar').style.display = 'none'; }
-
-let deferredPrompt = null;
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  document.getElementById('installBtn').style.display = 'inline-block';
-});
-async function installApp() {
-  if (!deferredPrompt) return;
-  deferredPrompt.prompt();
-  await deferredPrompt.userChoice;
-  deferredPrompt = null;
-  document.getElementById('installBtn').style.display = 'none';
-  document.getElementById('infoBar').style.display = 'none';
-}
 
 function tick() {
   const today = todayKey();
