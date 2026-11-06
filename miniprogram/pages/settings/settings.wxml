@@ -1,0 +1,80 @@
+<view class="page">
+
+  <!-- 薪资模式 -->
+  <view class="card">
+    <view class="card-head">
+      <text class="card-title">薪资模式<text class="en">Salary Mode</text></text>
+    </view>
+    <view class="seg">
+      <view class="seg-item {{config.mode === 'monthly' ? 'active' : ''}}" data-mode="monthly" bindtap="onModeChange">月薪</view>
+      <view class="seg-item {{config.mode === 'daily' ? 'active' : ''}}" data-mode="daily" bindtap="onModeChange">日薪</view>
+      <view class="seg-item {{config.mode === 'hourly' ? 'active' : ''}}" data-mode="hourly" bindtap="onModeChange">时薪</view>
+    </view>
+    <view class="tip">
+      {{config.mode === 'monthly' ? '按「月薪 ÷ 每月工作天数 ÷ 每日工时」折算每秒收入' : config.mode === 'daily' ? '按「日薪 ÷ 每日工时」折算每秒收入' : '按「时薪」直接折算每秒收入'}}
+    </view>
+  </view>
+
+  <!-- 工作参数 -->
+  <view class="card" wx:if="{{config.mode === 'monthly'}}">
+    <view class="form-row">
+      <text class="form-label">每月工作天数<text class="en">Work Days</text></text>
+      <input class="form-input" type="number" value="{{config.monthly.workDaysPerMonth}}" bindinput="onWorkDaysInput" placeholder="如 22" />
+      <text class="form-unit">天</text>
+    </view>
+    <view class="form-row">
+      <text class="form-label">每日工作小时<text class="en">Hours / Day</text></text>
+      <input class="form-input" type="digit" value="{{config.monthly.dailyWorkHours}}" bindinput="onDailyHoursInput" placeholder="如 8" />
+      <text class="form-unit">小时</text>
+    </view>
+  </view>
+  <view class="card" wx:if="{{config.mode === 'daily'}}">
+    <view class="form-row">
+      <text class="form-label">每日工作小时<text class="en">Hours / Day</text></text>
+      <input class="form-input" type="digit" value="{{config.daily.dailyWorkHours}}" bindinput="onDailyHoursInput" placeholder="如 8" />
+      <text class="form-unit">小时</text>
+    </view>
+  </view>
+
+  <!-- 薪资模块 -->
+  <view class="card">
+    <view class="card-head">
+      <text class="card-title">薪资模块<text class="en">Salary Modules</text></text>
+      <text class="card-unit">{{config.mode === 'monthly' ? 'CNY / MO' : config.mode === 'daily' ? 'CNY / DAY' : 'CNY / HR'}}</text>
+    </view>
+
+    <view class="module-item" wx:for="{{config.modules}}" wx:key="id">
+      <input class="module-name-input" value="{{item.name}}" data-idx="{{index}}" bindinput="onModuleNameInput" placeholder="模块名" />
+      <view class="module-amount-box">
+        <input class="module-amount-input" type="digit" value="{{item.amount}}" data-idx="{{index}}" bindinput="onModuleAmountInput" placeholder="0" />
+        <text class="module-rm" data-idx="{{index}}" bindtap="removeModule">✕</text>
+      </view>
+    </view>
+
+    <view class="module-empty" wx:if="{{!config.modules.length}}">还没有模块，点下方快速添加</view>
+
+    <view class="add-row">
+      <view class="add-btn" wx:for="{{presetNames}}" wx:key="*this" data-name="{{item}}" bindtap="addModule">+ {{item}}</view>
+    </view>
+
+    <view class="total-row">
+      <text class="total-label">合计<text class="en">Total</text></text>
+      <text class="total-val">¥{{totalText}}</text>
+    </view>
+    <view class="tip" wx:if="{{rateText}}">{{rateText}}</view>
+  </view>
+
+  <!-- 日收入目标 -->
+  <view class="card">
+    <view class="form-row">
+      <text class="form-label">今日目标<text class="en">Daily Goal</text></text>
+      <input class="form-input" type="digit" value="{{config.goal}}" bindinput="onGoalInput" placeholder="如 500" />
+      <text class="form-unit">元</text>
+    </view>
+    <view class="tip">达到该金额时提醒你（填 0 表示不设置目标）。</view>
+    <button class="btn btn-primary" bindtap="onEnableNotify" hover-class="btn-hover">
+      {{config.notifyEnabled ? '✅ 后台推送已开启（可再次订阅）' : '🔔 开启到达提醒（订阅消息）'}}
+    </button>
+  </view>
+
+</view>

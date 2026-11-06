@@ -1,0 +1,36 @@
+<view class="page">
+
+  <!-- 汇总 -->
+  <view class="summary">
+    <view class="summary-box">
+      <text class="summary-label">今日<text class="en">Today</text></text>
+      <text class="summary-val">¥{{todayEarned}}</text>
+      <text class="summary-sub">{{todayWorkedText}}</text>
+    </view>
+    <view class="summary-box">
+      <text class="summary-label">累计<text class="en">Total</text></text>
+      <text class="summary-val">¥{{totalEarned}}</text>
+      <text class="summary-sub">含历史记录</text>
+    </view>
+  </view>
+
+  <!-- 历史记录 -->
+  <view class="card">
+    <view class="card-head">
+      <text class="card-title">历史记录<text class="en">History</text></text>
+    </view>
+
+    <view class="empty" wx:if="{{!hasHistory}}">
+      暂无历史记录。跨天后会自动把前一天结算到这里。
+    </view>
+
+    <view class="history-item" wx:for="{{history}}" wx:key="date">
+      <view class="history-left">
+        <text class="history-date">{{item.date}}</text>
+        <text class="history-work">{{item.workedText}}</text>
+      </view>
+      <text class="history-earned">¥{{item.earned}}</text>
+    </view>
+  </view>
+
+</view>

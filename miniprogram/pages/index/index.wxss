@@ -1,0 +1,178 @@
+.page {
+  padding-bottom: 40rpx;
+}
+
+/* 顶部金额卡片 */
+.hero {
+  margin: 24rpx 32rpx;
+  padding: 40rpx 36rpx;
+  border-radius: 32rpx;
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 60%, #0f766e 100%);
+  color: #ffffff;
+  box-shadow: 0 12rpx 40rpx rgba(15, 23, 42, 0.35);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-label-box {
+  display: flex;
+  flex-direction: column;
+}
+.hero-label-cn {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+.hero-label-en {
+  font-size: 18rpx;
+  font-weight: 600;
+  color: #7dd3fc;
+  letter-spacing: 4rpx;
+  text-transform: uppercase;
+  margin-top: 4rpx;
+}
+
+/* 毛玻璃状态胶囊 */
+.hero-status {
+  font-size: 22rpx;
+  font-weight: 700;
+  letter-spacing: 2rpx;
+  padding: 8rpx 24rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1rpx solid rgba(255, 255, 255, 0.22);
+  color: #cbd5e1;
+}
+.hero-status.on {
+  background: rgba(16, 185, 129, 0.28);
+  color: #6ee7b7;
+  border-color: rgba(110, 231, 183, 0.35);
+}
+
+.hero-amount {
+  display: flex;
+  align-items: baseline;
+  margin: 32rpx 0 8rpx;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-symbol {
+  font-size: 48rpx;
+  font-weight: 700;
+  margin-right: 8rpx;
+  color: #34d399;
+}
+
+.hero-number {
+  font-size: 96rpx;
+  font-weight: 800;
+  letter-spacing: 1rpx;
+  font-variant-numeric: tabular-nums;
+}
+
+.hero-sub {
+  font-size: 26rpx;
+  color: #cbd5e1;
+  position: relative;
+  z-index: 1;
+}
+.hero-sub .en {
+  font-size: 20rpx;
+  color: #94a3b8;
+  letter-spacing: 1rpx;
+}
+.hero-sub.empty {
+  color: #f59e0b;
+}
+.hero-tip {
+  font-size: 22rpx;
+  color: #94a3b8;
+  margin-top: 8rpx;
+  letter-spacing: 2rpx;
+  text-transform: uppercase;
+  position: relative;
+  z-index: 1;
+}
+
+/* 按钮行 */
+.btn-row {
+  margin: 8rpx 32rpx 0;
+}
+
+.btn-start {
+  background: linear-gradient(90deg, #10b981, #059669);
+  color: #ffffff;
+  box-shadow: 0 8rpx 24rpx rgba(16, 185, 129, 0.35);
+}
+.btn-stop {
+  background: linear-gradient(90deg, #f59e0b, #d97706);
+  color: #ffffff;
+  box-shadow: 0 8rpx 24rpx rgba(245, 158, 11, 0.35);
+}
+.btn-link {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #10b981;
+  border: 2rpx solid #10b981;
+}
+
+/* 进度条 */
+.progress {
+  height: 16rpx;
+  background: rgba(148, 163, 184, 0.25);
+  border-radius: 999rpx;
+  overflow: hidden;
+}
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #34d399, #10b981);
+  border-radius: 999rpx;
+  transition: width 0.4s ease;
+}
+
+.card-val {
+  font-size: 26rpx;
+  color: #475569;
+}
+
+/* 模块明细 */
+.module-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16rpx 0;
+  border-bottom: 2rpx solid rgba(255, 255, 255, 0.4);
+}
+.module-row:last-child {
+  border-bottom: none;
+}
+.module-name {
+  color: #64748b;
+}
+.module-amount {
+  font-weight: 600;
+  color: #10b981;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 空态引导 */
+.empty-guide {
+  margin-top: 24rpx;
+  text-align: center;
+}
+.empty-guide .btn {
+  display: inline-block;
+  width: 60%;
+}

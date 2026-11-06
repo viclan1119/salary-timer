@@ -1,0 +1,23 @@
+{
+  "description": "工资实时计时小程序",
+  "compileType": "miniprogram",
+  "appid": "touristappid",
+  "projectname": "salary-timer",
+  "setting": {
+    "urlCheck": true,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "coverView": true,
+    "autoAudits": false,
+    "checkInvalidKey": true,
+    "ignoreUploadUnusedFiles": true,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    }
+  },
+  "condition": {}
+}

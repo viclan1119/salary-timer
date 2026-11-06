@@ -1,0 +1,84 @@
+/* 全局样式 */
+page {
+  background: linear-gradient(160deg, #dbeafe 0%, #e0f2fe 40%, #d1fae5 100%);
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
+  color: #1f2937;
+  font-size: 28rpx;
+  line-height: 1.5;
+}
+
+/* 通用卡片（毛玻璃） */
+.card {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  border: 1rpx solid rgba(255, 255, 255, 0.65);
+  border-radius: 24rpx;
+  margin: 24rpx 32rpx;
+  padding: 28rpx;
+  box-shadow: 0 8rpx 32rpx rgba(31, 41, 55, 0.08);
+}
+
+.card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.card-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #334155;
+}
+
+/* 标题下的英文小标签 */
+.card-title .en {
+  display: block;
+  font-size: 18rpx;
+  font-weight: 600;
+  color: #8aa0b8;
+  letter-spacing: 2rpx;
+  text-transform: uppercase;
+  margin-top: 2rpx;
+}
+
+.card-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 24rpx;
+  color: #8aa0b8;
+  margin-top: 12rpx;
+}
+
+/* 按钮 */
+.btn {
+  border-radius: 999rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  line-height: 2.6;
+}
+.btn::after { border: none; }
+
+.btn .en {
+  font-size: 22rpx;
+  font-weight: 600;
+  letter-spacing: 3rpx;
+  margin-left: 8rpx;
+  opacity: 0.85;
+  text-transform: uppercase;
+}
+
+.btn-hover { opacity: 0.85; }
+
+/* 提示文字 */
+.tip {
+  font-size: 24rpx;
+  color: #8aa0b8;
+  margin-top: 12rpx;
+  line-height: 1.6;
+}
+
+.reached { color: #10b981; font-weight: 600; }

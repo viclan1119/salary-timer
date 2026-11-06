@@ -1,0 +1,65 @@
+<view class="page">
+
+  <!-- 顶部金额卡片 -->
+  <view class="hero">
+    <view class="hero-top">
+      <view class="hero-label-box">
+        <text class="hero-label-cn">今日已赚</text>
+        <text class="hero-label-en">TODAY'S EARNINGS</text>
+      </view>
+      <text class="hero-status {{working ? 'on' : ''}}">{{working ? '● WORKING' : '○ IDLE'}}</text>
+    </view>
+
+    <view class="hero-amount">
+      <text class="hero-symbol">¥</text>
+      <text class="hero-number">{{earned}}</text>
+    </view>
+
+    <view class="hero-sub {{hasConfig ? '' : 'empty'}}">
+      <block wx:if="{{hasConfig}}">
+        ≈ ¥{{ratePerSecondText}}<text class="en">/SEC</text> · ¥{{ratePerHourText}}<text class="en">/HR</text>
+      </block>
+      <block wx:else>请先到「设置」填写薪资</block>
+    </view>
+
+    <view class="hero-tip" wx:if="{{hasConfig}}">WORKED · {{workedText}}</view>
+  </view>
+
+  <!-- 上班 / 下班按钮 -->
+  <view class="btn-row">
+    <button class="btn btn-start" wx:if="{{!working}}" bindtap="onStartWork" hover-class="btn-hover">开始上班<text class="en">Start</text></button>
+    <button class="btn btn-stop" wx:else bindtap="onStopWork" hover-class="btn-hover">结束上班<text class="en">End</text></button>
+  </view>
+
+  <!-- 目标进度 -->
+  <view class="card" wx:if="{{goal > 0}}">
+    <view class="card-head">
+      <text class="card-title">今日目标<text class="en">Daily Goal</text></text>
+      <text class="card-val">¥{{earned}} / ¥{{goal}}</text>
+    </view>
+    <view class="progress">
+      <view class="progress-bar" style="width: {{goalProgress}}%"></view>
+    </view>
+    <view class="card-foot">
+      <text>已完成 {{goalProgress}}%</text>
+      <text wx:if="{{goalReached}}" class="reached">🎉 GOAL ACHIEVED</text>
+    </view>
+  </view>
+
+  <!-- 薪资模块拆分 -->
+  <view class="card" wx:if="{{modulesEarned.length > 0}}">
+    <view class="card-head">
+      <text class="card-title">模块明细<text class="en">Modules</text></text>
+    </view>
+    <view class="module-row" wx:for="{{modulesEarned}}" wx:key="name">
+      <text class="module-name">{{item.name}}</text>
+      <text class="module-amount">¥{{item.amount}}</text>
+    </view>
+  </view>
+
+  <!-- 空态引导 -->
+  <view class="empty-guide" wx:if="{{!hasConfig}}">
+    <button class="btn btn-link" bindtap="goSettings" hover-class="btn-hover">去设置薪资 →</button>
+  </view>
+
+</view>

@@ -1,0 +1,26 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/stats/stats",
+    "pages/settings/settings"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#0f172a",
+    "navigationBarTitleText": "工资计时",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#dbeafe",
+    "backgroundTextStyle": "dark"
+  },
+  "tabBar": {
+    "color": "#8aa0b8",
+    "selectedColor": "#10b981",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [
+      { "pagePath": "pages/index/index", "text": "HOME" },
+      { "pagePath": "pages/stats/stats", "text": "STATS" },
+      { "pagePath": "pages/settings/settings", "text": "SETTINGS" }
+    ]
+  },
+  "sitemapLocation": "sitemap.json"
+}

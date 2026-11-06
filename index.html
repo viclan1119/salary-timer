@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>薪动</title>
+<meta name="description" content="输入薪资、设定每日目标，上班时金额实时跳动，目标达成自动提醒。">
+<meta name="theme-color" content="#0f172a">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="薪动">
+<style>
+  :root {
+    --green: #10b981;
+    --green-2: #059669;
+    --ink: #1f2937;
+    --muted: #8aa0b8;
+    --line: rgba(255,255,255,0.4);
+    --glass: rgba(255,255,255,0.55);
+    --glass-strong: rgba(255,255,255,0.72);
+    --glass-border: rgba(255,255,255,0.65);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: linear-gradient(160deg, #dbeafe 0%, #e0f2fe 40%, #d1fae5 100%);
+    background-attachment: fixed;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+    color: var(--ink);
+  }
+  .phone {
+    width: 100%;
+    max-width: 460px;
+    min-height: 100vh;
+    position: relative;
+    padding-bottom: 90px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.25), rgba(255,255,255,0.05));
+  }
+  .nav {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 460px;
+    min-height: calc(56px + env(safe-area-inset-top));
+    padding-top: env(safe-area-inset-top);
+    background: rgba(15, 23, 42, 0.62);
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  .nav .nav-cn { font-size: 17px; font-weight: 700; letter-spacing: 2px; }
+  .nav .nav-sub { font-size: 11px; font-weight: 500; color: #cbd5e1; letter-spacing: 1px; margin-left: 10px; }
+  .content { padding-top: calc(72px + env(safe-area-inset-top)); }
+
+  .info-bar {
+    margin: 12px 16px 0;
+    padding: 10px 14px;
+    border-radius: 14px;
+    background: rgba(254,243,199,0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(251,191,36,0.35);
+    color: #92400e;
+    font-size: 13px;
+    line-height: 1.5;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .info-text { flex: 1; }
+  .info-btn {
+    flex-shrink: 0;
+    border: none;
+    border-radius: 999px;
+    background: #10b981;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 6px 14px;
+    cursor: pointer;
+  }
+  .info-close { flex-shrink: 0; color: #b45309; font-size: 20px; line-height: 1; cursor: pointer; padding: 2px 4px; }
+
+  .tabbar {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 460px;
+    min-height: calc(64px + env(safe-area-inset-bottom));
+    padding-bottom: env(safe-area-inset-bottom);
+    background: var(--glass-strong);
+    backdrop-filter: blur(22px) saturate(160%);
+    -webkit-backdrop-filter: blur(22px) saturate(160%);
+    border-top: 1px solid var(--glass-border);
+    display: flex;
+    z-index: 10;
+  }
+  .tabbar .tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .tabbar .tab.active { color: var(--green); }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  .card {
+    background: var(--glass);
+    backdrop-filter: blur(18px) saturate(160%);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    margin: 14px 16px;
+    padding: 16px;
+    box-shadow: 0 8px 32px rgba(31, 41, 55, 0.08);
+  }
+  .card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .card-title { font-size: 16px; font-weight: 700; color: #334155; }
+  .card-title .en { display: block; font-size: 9px; font-weight: 700; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 1px; }
+  .tip { font-size: 13px; color: var(--muted); margin-top: 8px; line-height: 1.6; }
+
+  .hero {
+    margin: 14px 16px;
+    padding: 26px 22px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 60%, #0f766e 100%);
+    color: #fff;
+    box-shadow: 0 12px 40px rgba(15, 23, 42, 0.35);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -40px;
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    background: rgba(52, 211, 153, 0.25);
+    filter: blur(40px);
+  }
+  .hero-top { display: flex; justify-content: space-between; align-items: flex-start; position: relative; z-index: 1; }
+  .hero-label-cn { font-size: 15px; font-weight: 600; color: #f1f5f9; }
+  .hero-label-en { font-size: 9px; font-weight: 700; color: #7dd3fc; letter-spacing: 3px; text-transform: uppercase; margin-top: 3px; }
+  .hero-status {
+    font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+    padding: 5px 14px; border-radius: 999px;
+    background: rgba(255,255,255,0.14);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.22);
+    color: #cbd5e1;
+  }
+  .hero-status.on { background: rgba(16,185,129,0.28); color: #6ee7b7; border-color: rgba(110,231,183,0.35); }
+  .hero-amount { display: flex; align-items: baseline; margin: 18px 0 6px; position: relative; z-index: 1; }
+  .hero-symbol { font-size: 26px; font-weight: 700; margin-right: 6px; color: #34d399; }
+  .hero-number { font-size: 54px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: 1px; }
+  .hero-sub { font-size: 13px; color: #cbd5e1; position: relative; z-index: 1; }
+  .hero-sub .en { color: #94a3b8; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; }
+  .hero-sub.empty { color: #f59e0b; }
+  .hero-tip { font-size: 12px; color: #94a3b8; margin-top: 6px; position: relative; z-index: 1; letter-spacing: 1px; text-transform: uppercase; }
+
+  .btn-row { margin: 6px 16px 0; }
+  .btn {
+    display: block; width: 100%;
+    border: none; border-radius: 999px;
+    font-size: 16px; font-weight: 700;
+    padding: 14px 0; cursor: pointer; text-align: center;
+    letter-spacing: 1px;
+  }
+  .btn .en { font-size: 11px; font-weight: 600; letter-spacing: 3px; margin-left: 8px; opacity: 0.85; text-transform: uppercase; }
+  .btn-start { background: linear-gradient(90deg,#10b981,#059669); color:#fff; box-shadow: 0 8px 24px rgba(16,185,129,0.35); }
+  .btn-stop { background: linear-gradient(90deg,#f59e0b,#d97706); color:#fff; box-shadow: 0 8px 24px rgba(245,158,11,0.35); }
+  .btn-link { background: var(--glass); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); color: var(--green); border: 1px solid var(--green); }
+
+  .progress { height: 9px; background: rgba(148,163,184,0.25); border-radius: 999px; overflow: hidden; }
+  .progress-bar { height: 100%; background: linear-gradient(90deg,#34d399,#10b981); border-radius: 999px; transition: width .4s; }
+  .card-foot { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); margin-top: 8px; }
+  .card-val { font-size: 14px; color: #475569; font-variant-numeric: tabular-nums; }
+  .reached { color: var(--green); font-weight: 700; }
+
+  .module-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--line); }
+  .module-row:last-child { border-bottom: none; }
+  .module-name { color: #64748b; }
+  .module-amount { font-weight: 700; color: var(--green); font-variant-numeric: tabular-nums; }
+
+  .seg { display: flex; background: rgba(148,163,184,0.18); border-radius: 12px; padding: 3px; }
+  .seg-item { flex: 1; text-align: center; padding: 10px 0; font-size: 13px; font-weight: 600; color: #64748b; border-radius: 9px; cursor: pointer; letter-spacing: 1px; }
+  .seg-item.active { background: #fff; color: var(--green); font-weight: 700; box-shadow: 0 2px 8px rgba(0,0,0,.1); }
+
+  .form-row { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .form-row:last-child { border-bottom: none; }
+  .form-label { width: 150px; color: #475569; font-size: 14px; }
+  .form-label .en { display: block; font-size: 9px; font-weight: 700; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; }
+  .form-input { flex: 1; text-align: right; font-size: 15px; font-weight: 600; border: none; outline: none; color: #0f172a; background: transparent; }
+  .form-unit { width: 52px; text-align: right; color: var(--muted); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+
+  .card-unit { font-size: 12px; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600; }
+  .module-item { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .module-name-input { flex: 1; font-size: 14px; border: none; outline: none; color: var(--ink); background: transparent; }
+  .module-amount-box { display: flex; align-items: center; }
+  .module-amount-input { width: 110px; text-align: right; font-size: 15px; font-weight: 600; border: none; outline: none; background: transparent; }
+  .module-rm { width: 32px; text-align: center; color: #f87171; cursor: pointer; }
+  .module-empty { color: var(--muted); font-size: 13px; padding: 6px 0; }
+  .add-row { display: flex; flex-wrap: wrap; margin-top: 10px; }
+  .add-btn { font-size: 13px; color: var(--green); border: 1px solid rgba(16,185,129,0.4); background: rgba(16,185,129,0.08); border-radius: 999px; padding: 5px 14px; margin: 0 10px 10px 0; cursor: pointer; }
+  .total-row { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; padding-top: 12px; border-top: 1px solid var(--line); }
+  .total-label { font-size: 14px; color: #475569; }
+  .total-label .en { font-size: 9px; font-weight: 700; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; margin-left: 6px; }
+  .total-val { font-size: 20px; font-weight: 800; color: var(--green); font-variant-numeric: tabular-nums; }
+
+  .summary { display: flex; margin: 14px 16px; }
+  .summary-box {
+    flex: 1; border-radius: 16px; padding: 18px 10px; text-align: center;
+    background: var(--glass);
+    backdrop-filter: blur(18px) saturate(160%);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 8px 32px rgba(31,41,55,0.08);
+  }
+  .summary-box + .summary-box { margin-left: 10px; }
+  .summary-label { display: block; font-size: 13px; color: #475569; font-weight: 600; }
+  .summary-label .en { display: block; font-size: 9px; font-weight: 700; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
+  .summary-val { display: block; font-size: 24px; font-weight: 800; color: var(--green); margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .summary-sub { display: block; font-size: 12px; color: var(--muted); margin-top: 3px; }
+
+  .history-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .history-item:last-child { border-bottom: none; }
+  .history-left { display: flex; flex-direction: column; }
+  .history-date { color: #475569; font-size: 14px; font-weight: 600; }
+  .history-work { color: var(--muted); font-size: 12px; margin-top: 2px; }
+  .history-earned { font-weight: 700; color: var(--green); font-variant-numeric: tabular-nums; }
+  .empty { text-align: center; color: var(--muted); font-size: 14px; padding: 28px 0; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="nav"><span class="nav-cn">薪动</span><span class="nav-sub">让每一秒的努力看得到</span></div>
+
+  <div class="content">
+    <div class="info-bar" id="infoBar">
+      <span class="info-text">📱 添加到主屏幕，像 App 一样使用</span>
+      <button class="info-btn" id="installBtn" style="display:none" onclick="installApp()">安装</button>
+      <span class="info-close" onclick="closeInfoBar()">×</span>
+    </div>
+
+    <div class="page active" id="page-index"></div>
+    <div class="page" id="page-stats"></div>
+    <div class="page" id="page-settings"></div>
+  </div>
+
+  <div class="tabbar">
+    <div class="tab active" data-page="index">HOME</div>
+    <div class="tab" data-page="stats">STATS</div>
+    <div class="tab" data-page="settings">SETTINGS</div>
+  </div>
+</div>
+
+<script>
+const K_CONFIG = 'salarytimer_config';
+const K_STATE = 'salarytimer_state';
+const PRESETS = ['到手工资','公积金','社保','奖金','其他'];
+const MODE_LABEL = { monthly:'月薪', daily:'日薪', hourly:'时薪' };
+
+const DEFAULT_CONFIG = {
+  mode: 'monthly',
+  monthly: { workDaysPerMonth: 22, dailyWorkHours: 8 },
+  daily: { dailyWorkHours: 8 },
+  hourly: {},
+  modules: [],
+  goal: 0
+};
+
+function todayKey(d) {
+  d = d || new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function loadConfig() {
+  try { const c = JSON.parse(localStorage.getItem(K_CONFIG)); if (c && c.mode) return Object.assign(JSON.parse(JSON.stringify(DEFAULT_CONFIG)), c); }
+  catch(e){}
+  return JSON.parse(JSON.stringify(DEFAULT_CONFIG));
+}
+function saveConfig() { localStorage.setItem(K_CONFIG, JSON.stringify(config)); }
+function loadState() {
+  let s = {};
+  try { s = JSON.parse(localStorage.getItem(K_STATE)) || {}; } catch(e){}
+  const today = todayKey();
+  if (!s.todayDate) {
+    s = { working:false, startTime:0, todayWorkedSeconds:0, todayDate:today, history:[], goalNotifiedDate:'' };
+  }
+  if (s.todayDate !== today) {
+    const earned = (s.todayWorkedSeconds||0) * rate(config);
+    s.history = s.history || [];
+    const idx = s.history.findIndex(h=>h.date===s.todayDate);
+    const entry = { date: s.todayDate, seconds: Math.round(s.todayWorkedSeconds||0), earned: +(earned.toFixed(2)) };
+    if (idx>=0) s.history[idx]=entry; else s.history.unshift(entry);
+    s.todayDate = today; s.todayWorkedSeconds = 0; s.working = false; s.startTime = 0; s.goalNotifiedDate = '';
+  }
+  s.history = s.history || [];
+  return s;
+}
+function saveState() { localStorage.setItem(K_STATE, JSON.stringify(state)); }
+
+let config = loadConfig();
+let state = loadState();
+
+function sumModules() { return config.modules.reduce((s,m)=>s+(+m.amount||0),0); }
+function rate(c) {
+  c = c || config;
+  const t = c.modules.reduce((s,m)=>s+(+m.amount||0),0);
+  if (t <= 0) return 0;
+  if (c.mode === 'monthly') return t / (((+c.monthly.workDaysPerMonth)||22) * ((+c.monthly.dailyWorkHours)||8) * 3600);
+  if (c.mode === 'daily') return t / (((+c.daily.dailyWorkHours)||8) * 3600);
+  return t / 3600;
+}
+function workedSeconds(now) {
+  now = now || Date.now();
+  let sec = +state.todayWorkedSeconds || 0;
+  if (state.working && state.startTime) sec += Math.max(0, (now - state.startTime)/1000);
+  return sec;
+}
+function earned(now) { return workedSeconds(now) * rate(); }
+function fmtMoney(n) { return (Math.round((+n||0)*100)/100).toFixed(2); }
+function fmtDur(sec) {
+  sec = Math.max(0, Math.floor(+sec||0));
+  const h = Math.floor(sec/3600), m = Math.floor((sec%3600)/60), s = sec%60;
+  if (h>0) return `${h}小时${m}分${s}秒`;
+  if (m>0) return `${m}分${s}秒`;
+  return `${s}秒`;
+}
+function genId(){ return 'm_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+
+function renderIndex() {
+  const t = sumModules();
+  const r = rate();
+  const rh = r*3600;
+  const now = Date.now();
+  const w = workedSeconds(now);
+  const e = w * r;
+  const has = t>0 && r>0;
+  const goal = +config.goal || 0;
+  const prog = goal>0 ? Math.min(100, e/goal*100) : 0;
+  const reached = goal>0 && e>=goal;
+
+  let mods = '';
+  if (config.modules.length) {
+    mods = `<div class="card"><div class="card-head"><div class="card-title">模块明细<span class="en">Modules</span></div></div>
+      ${config.modules.map(m=>`<div class="module-row"><span class="module-name">${esc(m.name||'未命名')}</span><span class="module-amount">¥${fmtMoney((+m.amount||0)/Math.max(t,0.0001)*e)}</span></div>`).join('')}
+    </div>`;
+  }
+
+  let goalCard = '';
+  if (goal > 0) {
+    goalCard = `<div class="card"><div class="card-head"><div class="card-title">今日目标<span class="en">Daily Goal</span></div><div class="card-val">¥${fmtMoney(e)} / ¥${fmtMoney(goal)}</div></div>
+      <div class="progress"><div class="progress-bar" style="width:${prog}%"></div></div>
+      <div class="card-foot"><span>已完成 ${Math.round(prog*10)/10}%</span>${reached?'<span class="reached">🎉 GOAL ACHIEVED</span>':''}</div></div>`;
+  }
+
+  document.getElementById('page-index').innerHTML = `
+    <div class="hero">
+      <div class="hero-top">
+        <div>
+          <div class="hero-label-cn">今日已赚</div>
+          <div class="hero-label-en">Today's Earnings</div>
+        </div>
+        <span class="hero-status ${state.working?'on':''}">${state.working?'● WORKING':'○ IDLE'}</span>
+      </div>
+      <div class="hero-amount"><span class="hero-symbol">¥</span><span class="hero-number">${fmtMoney(e)}</span></div>
+      <div class="hero-sub ${has?'':'empty'}">${has?`≈ ¥${r.toFixed(4)}<span class="en">/sec</span> · ¥${rh.toFixed(2)}<span class="en">/hr</span>`:'请先到「设置」填写薪资'}</div>
+      <div class="hero-tip">${has?`Worked · ${fmtDur(w)}`:''}</div>
+    </div>
+    <div class="btn-row">
+      ${state.working
+        ? `<button class="btn btn-stop" onclick="stopWork()">结束上班<span class="en">End</span></button>`
+        : `<button class="btn btn-start" onclick="startWork()">开始上班<span class="en">Start</span></button>`}
+    </div>
+    ${goalCard}
+    ${mods}
+    ${!has?`<div style="text-align:center;margin:16px"><button class="btn btn-link" style="width:60%;display:inline-block" onclick="switchTab('settings')">去设置薪资 →</button></div>`:''}
+  `;
+}
+
+function renderStats() {
+  const now = Date.now();
+  const w = workedSeconds(now);
+  const e = w * rate();
+  const history = state.history.map(h=>({ date:h.date, workedText:fmtDur(h.seconds), earned:fmtMoney(h.earned) }));
+  let total = e;
+  history.forEach(h=>total += +h.earned);
+
+  document.getElementById('page-stats').innerHTML = `
+    <div class="summary">
+      <div class="summary-box"><span class="summary-label">今日<span class="en">Today</span></span><span class="summary-val">¥${fmtMoney(e)}</span><span class="summary-sub">${fmtDur(w)}</span></div>
+      <div class="summary-box"><span class="summary-label">累计<span class="en">Total</span></span><span class="summary-val">¥${fmtMoney(total)}</span><span class="summary-sub">含历史记录</span></div>
+    </div>
+    <div class="card"><div class="card-head"><div class="card-title">历史记录<span class="en">History</span></div></div>
+      ${history.length ? history.map(h=>`<div class="history-item"><div class="history-left"><span class="history-date">${h.date}</span><span class="history-work">${h.workedText}</span></div><span class="history-earned">¥${h.earned}</span></div>`).join('')
+      : `<div class="empty">暂无历史记录。<br>跨天后会自动把前一天结算到这里。</div>`}
+    </div>
+  `;
+}
+
+function renderSettings() {
+  const t = sumModules();
+  const r = rate();
+  const unit = config.mode==='monthly'?'CNY / MO':config.mode==='daily'?'CNY / DAY':'CNY / HR';
+  const paramTip = config.mode==='monthly'?'按「月薪 ÷ 每月工作天数 ÷ 每日工时」折算每秒收入'
+    : config.mode==='daily'?'按「日薪 ÷ 每日工时」折算每秒收入'
+    : '按「时薪」直接折算每秒收入';
+
+  let workParams = '';
+  if (config.mode === 'monthly') {
+    workParams = `<div class="card">
+      <div class="form-row"><span class="form-label">每月工作天数<span class="en">Work Days</span></span><input class="form-input" type="number" value="${config.monthly.workDaysPerMonth}" oninput="onWorkDays(this.value)"><span class="form-unit">天</span></div>
+      <div class="form-row"><span class="form-label">每日工作小时<span class="en">Hours / Day</span></span><input class="form-input" type="number" value="${config.monthly.dailyWorkHours}" oninput="onDailyHours(this.value)"><span class="form-unit">小时</span></div>
+    </div>`;
+  } else if (config.mode === 'daily') {
+    workParams = `<div class="card">
+      <div class="form-row"><span class="form-label">每日工作小时<span class="en">Hours / Day</span></span><input class="form-input" type="number" value="${config.daily.dailyWorkHours}" oninput="onDailyHours(this.value)"><span class="form-unit">小时</span></div>
+    </div>`;
+  }
+
+  const moduleList = config.modules.length
+    ? config.modules.map((m,i)=>`<div class="module-item">
+        <input class="module-name-input" value="${esc(m.name)}" placeholder="模块名" oninput="onModuleName(${i}, this.value)">
+        <div class="module-amount-box"><input class="module-amount-input" type="number" value="${m.amount}" placeholder="0" oninput="onModuleAmount(${i}, this.value)"><span class="module-rm" onclick="removeModule(${i})">✕</span></div>
+      </div>`).join('')
+    : `<div class="module-empty">还没有模块，点下方快速添加</div>`;
+
+  document.getElementById('page-settings').innerHTML = `
+    <div class="card">
+      <div class="card-head"><div class="card-title">薪资模式<span class="en">Salary Mode</span></div></div>
+      <div class="seg">
+        <div class="seg-item ${config.mode==='monthly'?'active':''}" onclick="setMode('monthly')">月薪</div>
+        <div class="seg-item ${config.mode==='daily'?'active':''}" onclick="setMode('daily')">日薪</div>
+        <div class="seg-item ${config.mode==='hourly'?'active':''}" onclick="setMode('hourly')">时薪</div>
+      </div>
+      <div class="tip">${paramTip}</div>
+    </div>
+    ${workParams}
+    <div class="card">
+      <div class="card-head"><div class="card-title">薪资模块<span class="en">Salary Modules</span></div><span class="card-unit">${unit}</span></div>
+      ${moduleList}
+      <div class="add-row">${PRESETS.map(p=>`<span class="add-btn" onclick="addModule('${p}')">+ ${p}</span>`).join('')}</div>
+      <div class="total-row"><span class="total-label">合计<span class="en">Total</span></span><span class="total-val">¥${fmtMoney(t)}</span></div>
+      <div class="tip">${r>0?`折算时薪 ¥${fmtMoney(r*3600)}/hr`:''}</div>
+    </div>
+    <div class="card">
+      <div class="form-row"><span class="form-label">今日目标<span class="en">Daily Goal</span></span><input class="form-input" type="number" value="${config.goal}" placeholder="如 500" oninput="onGoal(this.value)"><span class="form-unit">元</span></div>
+      <div class="tip">达到该金额时提醒你（填 0 表示不设置目标）。</div>
+    </div>
+  `;
+}
+
+function esc(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.page===name));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  if (name==='index') renderIndex();
+  if (name==='stats') renderStats();
+  if (name==='settings') renderSettings();
+}
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click', ()=>switchTab(t.dataset.page)));
+
+function startWork() {
+  const t = sumModules();
+  if (!(t>0 && rate()>0)) { alert('请先到「设置」填写薪资'); return; }
+  state.working = true; state.startTime = Date.now(); saveState(); renderIndex();
+}
+function stopWork() {
+  if (state.working && state.startTime) {
+    state.todayWorkedSeconds = (+state.todayWorkedSeconds||0) + Math.max(0,(Date.now()-state.startTime)/1000);
+    state.startTime = 0; state.working = false; saveState();
+  }
+  renderIndex();
+}
+
+function setMode(m){ if(m===config.mode) return; config.mode = m; saveConfig(); renderSettings(); }
+function onWorkDays(v){ config.monthly.workDaysPerMonth = +v||0; saveConfig(); renderSettings(); }
+function onDailyHours(v){ if(config.mode==='daily') config.daily.dailyWorkHours = +v||0; else config.monthly.dailyWorkHours = +v||0; saveConfig(); renderSettings(); }
+function onModuleName(i,v){ config.modules[i].name = v; saveConfig(); }
+function onModuleAmount(i,v){ config.modules[i].amount = +v||0; saveConfig(); renderSettings(); }
+function addModule(name){ config.modules.push({ id:genId(), name, amount:0 }); saveConfig(); renderSettings(); }
+function removeModule(i){ config.modules.splice(i,1); saveConfig(); renderSettings(); }
+function onGoal(v){ config.goal = +v||0; saveConfig(); renderSettings(); }
+
+function closeInfoBar(){ document.getElementById('infoBar').style.display = 'none'; }
+
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('installBtn').style.display = 'inline-block';
+});
+async function installApp() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  document.getElementById('installBtn').style.display = 'none';
+  document.getElementById('infoBar').style.display = 'none';
+}
+
+function tick() {
+  const today = todayKey();
+  if (state.todayDate !== today) {
+    state = loadState();
+    saveState();
+  }
+  if (document.getElementById('page-index').classList.contains('active')) {
+    renderIndex();
+    const goal = +config.goal||0;
+    const e = earned();
+    if (goal>0 && e>=goal && state.goalNotifiedDate!==todayKey()) {
+      state.goalNotifiedDate = todayKey(); saveState();
+      alert(`🎉 达成今日目标！已累计 ¥${fmtMoney(e)}，达到目标 ¥${fmtMoney(goal)}`);
+    }
+  }
+}
+setInterval(tick, 1000);
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
+
+renderIndex();
+renderStats();
+renderSettings();
+</script>
+</body>
+</html>
